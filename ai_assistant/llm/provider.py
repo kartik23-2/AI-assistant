@@ -49,10 +49,15 @@ class OfflinePedagogicalProvider(LLMProvider):
 
         if name == "AgentDecision":
             from ai_assistant.models.schemas import ActionType, AgentDecision, ClarificationRequest
+            
+            # Extract the actual student query from the prompt if present
+            query_match = re.search(r"Student Query:\s*'([^']*)'", prompt, re.IGNORECASE)
+            actual_query = query_match.group(1).lower() if query_match else prompt_lower
+
             # Check for ambiguity indicators first
-            if any(term in prompt_lower for term in ["help me study", "i want to learn", "teach me something", "just learn", "confused", "hi", "hello"]):
+            if any(term in actual_query for term in ["help me study", "i want to learn", "teach me something", "just learn", "confused", "hi", "hello"]):
                 # If no subject or topic specified
-                if not any(sub in prompt_lower for sub in ["python", "machine learning", "calculus", "data structures", "operating systems", "physics", "biology", "history"]):
+                if not any(sub in actual_query for sub in ["python", "machine learning", "calculus", "data structures", "operating systems", "physics", "biology", "history"]):
                     return AgentDecision(
                         action=ActionType.CLARIFY,
                         reasoning="User request lacks subject, topic, and learning goals.",
@@ -66,25 +71,25 @@ class OfflinePedagogicalProvider(LLMProvider):
                         )
                     )
 
-            if "eval" in prompt_lower or "grade" in prompt_lower or "check my answer" in prompt_lower or "submitted answer" in prompt_lower:
+            if any(k in actual_query for k in ["evaluate", "grade", "check my answer", "submitted answer", "my answer"]):
                 return AgentDecision(
                     action=ActionType.QUIZ_EVALUATE,
                     reasoning="User submitted answers to an active quiz requiring evaluation and feedback.",
                     confidence=0.98
                 )
-            elif "quiz" in prompt_lower or "practice" in prompt_lower or "test" in prompt_lower:
+            elif any(k in actual_query for k in ["quiz", "practice", "test", "assessment", "questions"]):
                 return AgentDecision(
                     action=ActionType.QUIZ_GENERATE,
                     reasoning="User explicitly requested a practice quiz or assessment.",
                     confidence=0.96
                 )
-            elif "explain" in prompt_lower or "what is" in prompt_lower or "how does" in prompt_lower or "teach" in prompt_lower:
+            elif any(k in actual_query for k in ["explain", "what is", "how does", "teach", "breakdown", "intuition"]):
                 return AgentDecision(
                     action=ActionType.EXPLAIN,
                     reasoning="User requested a pedagogical concept explanation.",
                     confidence=0.94
                 )
-            elif "plan" in prompt_lower or "schedule" in prompt_lower or "syllabus" in prompt_lower or "roadmap" in prompt_lower or "goal" in prompt_lower:
+            elif any(k in actual_query for k in ["plan", "schedule", "syllabus", "roadmap", "goal", "study", "learn"]):
                 return AgentDecision(
                     action=ActionType.PLAN,
                     reasoning="User asked for a structured study roadmap or personalized plan.",

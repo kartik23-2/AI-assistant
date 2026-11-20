@@ -51,5 +51,8 @@ htmlcov/
 *.log
 logs/
 
+# Persisted runtime sessions
+.sessions/
+
 # Antigravity artifacts
 .gemini/
