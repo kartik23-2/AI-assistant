@@ -3,11 +3,13 @@
 import os
 from typing import Literal
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Application configuration settings."""
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     app_name: str = "Autonomous AI Study Assistant"
     app_version: str = "1.0.0"
@@ -27,10 +29,6 @@ class Settings(BaseSettings):
     # API / Server settings
     api_host: str = "0.0.0.0"
     api_port: int = 8000
-
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
 
 
 settings = Settings()

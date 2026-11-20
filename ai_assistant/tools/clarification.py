@@ -52,12 +52,12 @@ class ClarificationTool(BaseTool[ClarificationInput, ClarificationRequest]):
         missing_fields: List[str] = []
         if not has_subject:
             missing_fields.append("subject")
-        if not any(term in query_lower for term in ["goal", "exam", "interview", "master", "project", "homework", "beginner", "intermediate", "advanced"]):
+        if not any(term in query_lower for term in ["goal", "exam", "interview", "master", "project", "homework", "beginner", "intermediate", "advanced", "plan", "learn", "study", "days", "weeks"]):
             missing_fields.append("learning_goal_or_level")
 
         is_ambiguous = len(missing_fields) > 0 or any(query_lower == trig for trig in ambiguous_triggers)
 
-        if not is_ambiguous and len(query.split()) > 4:
+        if not is_ambiguous or (has_subject and len(query.split()) >= 4):
             return ClarificationRequest(
                 is_ambiguous=False,
                 missing_fields=[],
