@@ -1,5 +1,13 @@
 """Streamlit Interactive Web UI for the Autonomous AI Study Assistant."""
 
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path regardless of execution working directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import json
 import streamlit as st
 from ai_assistant.agent import run_agent_turn, session_memory
